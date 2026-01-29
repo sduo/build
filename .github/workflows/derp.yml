@@ -20,9 +20,17 @@ jobs:
           go-version: '1.25.6'
       - name: '检查 Go 版本'
         run: go version
+      - name: '初始化编译环境'
+        run: mkdir --parents ${GITHUB_WORKSPACE}/builds/derp
       - name: '编译代码'
-        run: |
-          mkdir --parents ${GITHUB_WORKSPACE}/builds/derp
+        run: |          
           cd ${GITHUB_WORKSPACE}/tailscale/derp
           go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/builds/derp/derper
+      - name: '检查编译目标'
+        run: ls ${GITHUB_WORKSPACE}/builds/derp
+      - name: '测试编译目标'
+        run: ${GITHUB_WORKSPACE}/builds/derp --help
+
+
+
     
