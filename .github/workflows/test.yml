@@ -18,16 +18,22 @@ jobs:
     runs-on: ubuntu-latest    
     env:
       GO-VERSION: '1.25.6'
-      TZ: 'Asia/Shanghai'
+      TZ: 'UTC'
+      ARTIFACT-PREFIX: 'artifact'
+    outputs:
+      artifacts_${{matrix.env}}: ${{steps.build.outputs.artifacts}}
     steps:      
-      - name: '测试'
+      - name: '构建'
+        id: build
         run: |       
           export GOARCH=${{ matrix.arch }} GOOS=${{ matrix.os }}
           echo ${GOARCH}
           echo ${GOOS}
           date +"%Z %z"
           export TZ=${{ env.TZ }}
-          date +"%Z %z"
+          date +"%Z %z" > ${GITHUB_WORKSPACE}/${{env.ARTIFACT-PREFIX}}_${{matrix.env}}
           unset TZ
           date +"%Z %z"
+          echo "artifacts=${GITHUB_WORKSPACE}/${{env.ARTIFACT-PREFIX}}_${{matrix.env}}" >> ${GITHUB_OUTPUT}
+          
           
