@@ -46,7 +46,7 @@ jobs:
         id: 'version'
         run: |          
           cat ${GITHUB_WORKSPACE}/tailscale/VERSION.txt
-          
+          git rev-parse HEAD
       
 
 
