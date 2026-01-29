@@ -9,6 +9,7 @@ jobs:
         env:
           - "GOARCH=arm64 GOOS=linux"
           - "GOARCH=amd64 GOOS=linux"
+    # https://docs.github.com/zh/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job
     runs-on: ubuntu-latest    
     env:
       GO-VERSION: '1.25.6'
@@ -25,10 +26,15 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: ${{env.GO-VERSION}}
-      - name: '初始化编译环境'
+      - name: '还原依赖'
+        id: restore
         run: |       
           export ${{ matrix.env }}
+          echo "arch=${GOARCH}" >> $GITHUB_OUTPUT
+          echo "os=${GOOS}" >> $GITHUB_OUTPUT
           mkdir --parents ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}/derper
+          cd ${GITHUB_WORKSPACE}/tailscale
+          echo "version=$(cat VERSION.txt)-$(git log -1 --format="%H")" >> $GITHUB_OUTPUT
           cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
           echo go get .
         # https://github.com/tailscale/tailscale
@@ -42,19 +48,10 @@ jobs:
           export ${{ matrix.env }}
           cd ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}
           echo tar -czf derper_${GOOS}_${GOARCH}.tar.gz derper
-      - name: '获取版本'
-        id: 'version'
-        run: |         
-          export ${{ matrix.env }}          
-          echo "arch=${GOARCH}" >> $GITHUB_OUTPUT
-          echo "os=${GOOS}" >> $GITHUB_OUTPUT
-          cd ${GITHUB_WORKSPACE}/tailscale
-          git config --list | grep log.date
-          version=$(cat VERSION.txt)-$(git log -1 --abbrev=9 --format="dev%cd-t%h" --date=format:%Y%m%d)          
-          echo "version=${version}" >> $GITHUB_OUTPUT
       - name: '发布文件'
         run: | 
-          echo ${{ steps.version.outputs.version }}
+          echo ${{ steps.restore.outputs.version }}
+          gh --version
 
 
       
