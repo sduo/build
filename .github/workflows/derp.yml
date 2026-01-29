@@ -3,13 +3,19 @@ on:
   # 手动触发
   workflow_dispatch:
 jobs:
-  amd64:
-    runs-on: ubuntu-24.04 #ubuntu-24.04-arm
-    steps:
-      # https://github.com/tailscale/tailscale
+  Build:  
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env:
+          - "GOARCH=arm64 GOOS=linux"
+          - "GOARCH=amd64 GOOS=linux"
+    env:
+      GO-VERSION: '1.25.6'
+    steps:      
       # https://github.com/actions/checkout
       - name: '检出 tailscale/tailscale 仓库'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: tailscale/tailscale
           path: tailscale
@@ -18,37 +24,28 @@ jobs:
       - name: '初始化 Go 环境'
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25.6'
+          go-version: ${{env.GO-VERSION}}
       - name: '初始化编译环境'
-        run: mkdir --parents ${GITHUB_WORKSPACE}/builds/derp
+        run: |
+          export ${{ matrix.env }}
+          echo ${GOARCH}
+          echo ${GOOS}
+          mkdir --parents ${GITHUB_WORKSPACE}/cmd/derper/${GOOS}_${GOARCH}
+        # https://github.com/tailscale/tailscale
       - name: '编译代码'
-        run: |          
-          cd ${GITHUB_WORKSPACE}/tailscale/derp
-          go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/builds/derp/derper
+        run: |      
+          echo ${GOARCH}
+          echo ${GOOS}
+          cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper          
+          go get .
+          echo go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/cmd/derper/derper ./...
       - name: '打包'
         run: |
-          cd ${GITHUB_WORKSPACE}/builds
-          tar -czf derp.tar.gz derp
-          pwd
-      - name: '创建发布'
-        id: release        
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GHT }}
-        with:
-          tag_name: '2026012901'
-          release_name: 'Tailscale DERP Server'
-          draft: true
-          prerelease: false        
-      - name: '上传文件'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GHT }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: /home/runner/work/build/build/builds/derp.tar.gz
-          asset_name: derper_amd64.tar.gz
-          asset_content_type: application/x-gzip
+          echo ${GOARCH}
+          echo ${GOOS}
+          cd ${GITHUB_WORKSPACE}/cmd/derper
+          tar -czf derp.tar.gz ${GOOS}_${GOARCH}
+         
 
 
     
