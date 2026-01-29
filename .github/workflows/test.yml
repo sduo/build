@@ -11,9 +11,11 @@ jobs:
           - env: linux-amd64
             arch: amd64
             os: linux
+            exit: 0
           - env: linux-arm64
             arch: arm64
             os: linux
+            exit: 0
     # https://docs.github.com/zh/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job
     runs-on: ubuntu-latest    
     env:
@@ -35,23 +37,16 @@ jobs:
           unset TZ
           date +"%Z %z"
           echo "artifacts=${GITHUB_WORKSPACE}/${{env.ARTIFACT-PREFIX}}_${{matrix.env}}" >> ${GITHUB_OUTPUT}
-          if [ "${{ matrix.env }}" = "linux-arm64" ]; then
-            echo 1
-            exit 1
-          else
-            echo 0
-            exit 0
-          fi
+          exit ${{ matrix.exit }}
   Release:
     runs-on: ubuntu-latest
     needs: Build
-    # if: ${{ !contains(join(needs.*.result, ','), 'failure') }}
     env:
       ARTIFACT-PREFIX: 'artifact'
     steps:
       - name: '发布'
         run: |
-          echo ${{ join(needs.*.result, ',') }}
+          echo ${{ join(needs.*.outputs, ',') }}
     
           
           
