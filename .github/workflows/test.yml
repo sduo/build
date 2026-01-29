@@ -23,7 +23,7 @@ jobs:
       TZ: 'UTC'
       ARTIFACT-PREFIX: 'artifact'
     outputs:
-      artifacts_${matrix.env}: ${{steps.build.outputs.artifacts}}
+      artifacts_${{matrix.env}}: ${{steps.build.outputs.artifacts}}
     steps:      
       - name: '构建'
         id: build
