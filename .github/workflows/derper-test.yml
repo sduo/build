@@ -26,8 +26,7 @@ jobs:
         with:
           go-version: ${{env.GO-VERSION}}
       - name: '初始化编译环境'
-        run: |
-          export ${{ matrix.env }}
+        run: |          
           mkdir --parents ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}/derper
           cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
           echo go get .
@@ -44,10 +43,14 @@ jobs:
           echo tar -czf derper_${GOOS}_${GOARCH}.tar.gz derper
       - name: '获取版本'
         id: 'version'
-        run: |          
-          echo "::set-output name=version::$(cat ${GITHUB_WORKSPACE}/tailscale/VERSION.txt)"
-          echo "::set-output name=head::$(git rev-parse HEAD)"
-          echo "::set-output name=today::$(date +'%Y%m%d')"
+        run: |         
+          export ${{ matrix.env }}          
+          echo "arch=${GOARCH}" >> $GITHUB_OUTPUT
+          echo "os=${GOOS}" >> $GITHUB_OUTPUT     
+          echo "today=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          cd ${GITHUB_WORKSPACE}/tailscale
+          echo "version=$(cat VERSION.txt)" >> $GITHUB_OUTPUT
+          echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT          
       - name: '发布文件'
         run: | 
           echo ${{ steps.version.outputs.version }}-dev${{ steps.version.outputs.today }}-${{ steps.version.outputs.head }}
