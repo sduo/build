@@ -17,5 +17,6 @@ jobs:
           submodules: true
       - name: '编译代码'
         run: |
+          export TZ=UTC
           cd ${GITHUB_WORKSPACE}/tailscale
-          git log -1 --format="%h %cd" --date=utc --abbrev=9
+          git log -1 --format="%h %cd" --date=format:'%Y%m%d' --abbrev=9
