@@ -36,6 +36,8 @@ jobs:
           cd ${GITHUB_WORKSPACE}/tailscale
           echo "version=$(cat VERSION.txt)" >> $GITHUB_OUTPUT
           echo "head=$(git log -1 --format="%H")" >> $GITHUB_OUTPUT
+          cd ${GITHUB_WORKSPACE}/tailscale/version
+          go run version.go -func Long
           cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
           echo go get .
         # https://github.com/tailscale/tailscale
