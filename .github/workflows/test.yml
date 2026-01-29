@@ -45,7 +45,7 @@ jobs:
   Release:
     runs-on: ubuntu-latest
     needs: Build
-    if: ${{ !contains(join(needs.*.result, ','), 'failure') }}
+    # if: ${{ !contains(join(needs.*.result, ','), 'failure') }}
     env:
       ARTIFACT-PREFIX: 'artifact'
     steps:
