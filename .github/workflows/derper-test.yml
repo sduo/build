@@ -47,14 +47,12 @@ jobs:
         run: |         
           export ${{ matrix.env }}          
           echo "arch=${GOARCH}" >> $GITHUB_OUTPUT
-          echo "os=${GOOS}" >> $GITHUB_OUTPUT     
-          echo "today=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          echo "os=${GOOS}" >> $GITHUB_OUTPUT
           cd ${GITHUB_WORKSPACE}/tailscale
-          echo "version=$(cat VERSION.txt)" >> $GITHUB_OUTPUT
-          echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT          
+          echo "version=$(cat VERSION.txt)-$(git log -1 --format="dev%h-t%cd" --date=format:%Y%m%d)" >> $GITHUB_OUTPUT
       - name: '发布文件'
         run: | 
-          echo ${{ steps.version.outputs.version }}-dev${{ steps.version.outputs.today }}-${{ steps.version.outputs.head }}
+          echo ${{ steps.version.outputs.version }}
 
 
       
