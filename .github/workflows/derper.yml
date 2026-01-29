@@ -29,14 +29,14 @@ jobs:
         run: |
           export ${{ matrix.env }}
           mkdir --parents ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper
-          ls ${GITHUB_WORKSPACE}/cmd
+          cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper          
+          go get .
         # https://github.com/tailscale/tailscale
       - name: '编译代码'
         run: |      
           export ${{ matrix.env }}
-          cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper          
-          go get .
-          echo go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper
+          cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
+          go build -ldflags "-s -w" -v -o ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper ./...
           ls ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper
           chmod 755 ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper
           ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper -version
