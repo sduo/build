@@ -19,5 +19,5 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}/tailscale
           echo git tag
-          git show-ref --tags
+          echo git show-ref --tags
           git for-each-ref refs/tags
