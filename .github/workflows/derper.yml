@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
 jobs:
   Build:  
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         env:
           - "GOARCH=arm64 GOOS=linux"
           - "GOARCH=amd64 GOOS=linux"
+    runs-on: ubuntu-latest    
     env:
       GO-VERSION: '1.25.6'
     steps:      
@@ -28,23 +28,32 @@ jobs:
       - name: '初始化编译环境'
         run: |
           export ${{ matrix.env }}
-          mkdir --parents ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper
-          cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper          
+          mkdir --parents ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}/derper
+          cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
           go get .
         # https://github.com/tailscale/tailscale
       - name: '编译代码'
         run: |      
           export ${{ matrix.env }}
           cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
-          go build -ldflags "-s -w" -v -o ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper ./...
-          ls ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper
-          chmod 755 ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper
-          ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper -version
-      - name: '打包'
+          go build -ldflags "-s -w" -v -o ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}/derper/derper ./...          
+      - name: '打包文件'
         run: |
           export ${{ matrix.env }}
-          cd ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}
+          cd ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}
           tar -czf derper_${GOOS}_${GOARCH}.tar.gz derper
+      - name: '获取版本'
+        id: 'version'
+        run: |          
+          export VERSION=$(cat '${GITHUB_WORKSPACE}/tailscale/VERSION.txt')
+          echo ${VERSION}
+        # https://github.com/actions/upload-artifact
+      - name: '发布文件'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'Tailscale DERP Server'
+          path: ${{ github.workspace }}/artifacts/**/derper_*.tar.gz
+          if-no-files-found: error
          
 
 
