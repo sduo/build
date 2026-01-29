@@ -45,9 +45,8 @@ jobs:
       - name: '获取版本'
         id: 'version'
         run: |          
-          ls ${GITHUB_WORKSPACE}/tailscale
-          export VERSION=$(cat '${GITHUB_WORKSPACE}/tailscale/VERSION.txt')
-          echo ${VERSION}
+          ls ${GITHUB_WORKSPACE}/tailscale/VERSION*
+          
       
 
 
