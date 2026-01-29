@@ -26,7 +26,8 @@ jobs:
         with:
           go-version: ${{env.GO-VERSION}}
       - name: '初始化编译环境'
-        run: |          
+        run: |       
+          export ${{ matrix.env }}
           mkdir --parents ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}/derper
           cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
           echo go get .
