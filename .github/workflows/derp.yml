@@ -27,9 +27,11 @@ jobs:
           cd ${GITHUB_WORKSPACE}/tailscale/derp
           go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/builds/derp/derper
       - name: '检查编译目标'
-        run: ls ${GITHUB_WORKSPACE}/builds/derp
+        run: ls -l ${GITHUB_WORKSPACE}/builds/derp
       - name: '测试编译目标'
-        run: ${GITHUB_WORKSPACE}/builds/derp --help
+        run: |
+          chmod 755 ${GITHUB_WORKSPACE}/builds/derp/derper
+          ${GITHUB_WORKSPACE}/builds/derp/derper --help
 
 
 
