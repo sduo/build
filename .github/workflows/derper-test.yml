@@ -34,7 +34,8 @@ jobs:
           echo "os=${GOOS}" >> $GITHUB_OUTPUT
           mkdir --parents ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}/derper
           cd ${GITHUB_WORKSPACE}/tailscale
-          echo "version=$(cat VERSION.txt)-$(git log -1 --format="%H")" >> $GITHUB_OUTPUT
+          echo "version=$(cat VERSION.txt)" >> $GITHUB_OUTPUT
+          echo "head=$(git log -1 --format="%H")" >> $GITHUB_OUTPUT
           cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper
           echo go get .
         # https://github.com/tailscale/tailscale
@@ -49,9 +50,13 @@ jobs:
           cd ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}
           echo tar -czf derper_${GOOS}_${GOARCH}.tar.gz derper
       - name: '发布文件'
+        env:
+          GH_TOKEN: ${{ secrets.GTH }}
         run: | 
-          echo ${{ steps.restore.outputs.version }}
-          gh --version
+          export ${{ matrix.env }}
+          cd ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}
+          gh release create derper-${{ steps.restore.outputs.version }}.${{ steps.restore.outputs.head }} --draft --title=derper-${{ steps.restore.outputs.version }}.${{ steps.restore.outputs.head }}
+          gh release upload derper-${{ steps.restore.outputs.version }}.${{ steps.restore.outputs.head }} derper_${GOOS}_${GOARCH}.tar.gz
 
 
       
