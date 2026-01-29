@@ -44,7 +44,7 @@ jobs:
     steps:
       - name: '发布'
         run: |
-          echo ${{needs.*.result}}
+          echo ${{ join(needs.*.result, ',') }}
     
           
           
