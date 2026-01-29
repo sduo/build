@@ -18,4 +18,6 @@ jobs:
       - name: '编译代码'
         run: |
           cd ${GITHUB_WORKSPACE}/tailscale
-          git describe --tags --always
+          git tag
+          git show-ref --tags
+          git for-each-ref refs/tags
