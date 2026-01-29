@@ -15,7 +15,3 @@ jobs:
           repository: tailscale/tailscale
           path: tailscale
           submodules: true
-      - name: Tag
-        run: |
-          cd ${{ GITHUB_WORKSPACE }}/tailscale
-          ls
