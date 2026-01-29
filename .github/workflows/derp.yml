@@ -26,14 +26,19 @@ jobs:
         run: |          
           cd ${GITHUB_WORKSPACE}/tailscale/derp
           go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/builds/derp/derper
-      - name: '检查编译目标'
-        run: ls -l ${GITHUB_WORKSPACE}/builds/derp
-      - name: '权限设置'
-        run: chmod 755 ${GITHUB_WORKSPACE}/builds/derp/derper
-      - name: '检查编译目标'
-        run: ls -l ${GITHUB_WORKSPACE}/builds/derp
-      - name: '测试版本'
-        run: ${GITHUB_WORKSPACE}/builds/derp/derper --help
+      - name: '打包'
+        run: |
+          cd ${GITHUB_WORKSPACE}/builds
+          tar -czf derper_amd64.tar.gz derp
+      - name: '发布'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${GITHUB_WORKSPACE}/builds/derper_amd64.tar.gz
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 
