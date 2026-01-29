@@ -32,11 +32,12 @@ jobs:
           cd ${GITHUB_WORKSPACE}/builds
           tar -czf derp.tar.gz derp
       - name: '创建发布'
-        id: release
+        id: release        
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GHT }}
         with:
+          tag_name: '2026012901'
           release_name: 'Tailscale DERP Server'
           draft: true
           prerelease: false        
