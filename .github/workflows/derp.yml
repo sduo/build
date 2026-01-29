@@ -7,13 +7,14 @@ jobs:
     runs-on: ubuntu-24.04 #ubuntu-24.04-arm
     steps:
       # https://github.com/tailscale/tailscale
+      # https://github.com/actions/checkout
       - name: '检出 tailscale/tailscale 仓库'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: tailscale/tailscale
           path: tailscale
           submodules: true
-      # 
+      # https://github.com/actions/setup-go
       - name: '初始化 Go 环境'
         uses: actions/setup-go@v6
         with:
@@ -29,20 +30,25 @@ jobs:
       - name: '打包'
         run: |
           cd ${GITHUB_WORKSPACE}/builds
-          ls -l
-          tar -czf derper_amd64.tar.gz derp
-          ls -l
-      - name: '发布'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            ${GITHUB_WORKSPACE}/builds/derper_amd64.tar.gz
-            ${GITHUB_WORKSPACE}/builds/derp/derper
-          draft: true
-          prerelease: false
+          tar -czf derp.tar.gz derp
+      - name: '创建发布'
+        id: release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GHT }}
-
+        with:
+          release_name: 'Tailscale DERP Server'
+          draft: true
+          prerelease: false        
+      - name: '上传文件'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHT }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ${GITHUB_WORKSPACE}/builds/derp.tar.gz
+          asset_name: derper_amd64.tar.gz
+          asset_content_type: application/x-gzip
 
 
     
