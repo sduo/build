@@ -29,12 +29,15 @@ jobs:
       - name: '打包'
         run: |
           cd ${GITHUB_WORKSPACE}/builds
+          ls -l
           tar -czf derper_amd64.tar.gz derp
+          ls -l
       - name: '发布'
         uses: softprops/action-gh-release@v1
         with:
           files: |
             ${GITHUB_WORKSPACE}/builds/derper_amd64.tar.gz
+            ${GITHUB_WORKSPACE}/builds/derp/derper
           draft: true
           prerelease: false
         env:
