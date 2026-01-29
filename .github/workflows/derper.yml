@@ -28,23 +28,19 @@ jobs:
       - name: '初始化编译环境'
         run: |
           export ${{ matrix.env }}
-          echo ${GOARCH}
-          echo ${GOOS}
-          mkdir --parents ${GITHUB_WORKSPACE}/cmd/derper/${GOOS}_${GOARCH}
+          mkdir --parents ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper
         # https://github.com/tailscale/tailscale
       - name: '编译代码'
         run: |      
-          echo ${GOARCH}
-          echo ${GOOS}
+          export ${{ matrix.env }}
           cd ${GITHUB_WORKSPACE}/tailscale/cmd/derper          
           go get .
-          echo go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/cmd/derper/derper ./...
+          echo go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}/derper/derper ./...
       - name: '打包'
         run: |
-          echo ${GOARCH}
-          echo ${GOOS}
-          cd ${GITHUB_WORKSPACE}/cmd/derper
-          tar -czf derp.tar.gz ${GOOS}_${GOARCH}
+          export ${{ matrix.env }}
+          cd ${GITHUB_WORKSPACE}/cmd/${GOOS}_${GOARCH}
+          tar -czf derper_ ${GOOS}_${GOARCH}.tar.gz derper
          
 
 
