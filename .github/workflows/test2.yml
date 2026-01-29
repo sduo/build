@@ -11,7 +11,13 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:      
-      - name: Check
+      - name: '检出 tailscale/tailscale 仓库'
+        uses: actions/checkout@v6
+        with:
+          repository: tailscale/tailscale
+          path: tailscale
+          submodules: true
+      - name: Tag
         run: |
-          echo hello
-          gh -version
+          cd ${{ GITHUB_WORKSPACE }}/tailscale
+          ls
