@@ -35,7 +35,7 @@ jobs:
           unset TZ
           date +"%Z %z"
           echo "artifacts=${GITHUB_WORKSPACE}/${{env.ARTIFACT-PREFIX}}_${{matrix.env}}" >> ${GITHUB_OUTPUT}
-          if ['${{ matrix.env }}' == 'linux-arm64' ]; then
+          if [ "${{ matrix.env }}" = "linux-arm64" ]; then
             echo 1
             exit 1
           else
