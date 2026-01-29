@@ -23,7 +23,7 @@ jobs:
       TZ: 'UTC'
       ARTIFACT-PREFIX: 'artifact'
     outputs:
-      artifacts_${matrix.env}: ${{steps.build.outputs.artifacts}}
+      artifacts: ${{steps.build.outputs.artifacts}}
     steps:      
       - name: '构建'
         id: build
@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: '发布'
         run: |
-          echo ${{ join(needs.*.outputs, ',') }}
+          echo ${{ join(needs.*.outputs.artifacts, ',') }}
     
           
           
