@@ -18,5 +18,4 @@ jobs:
       - name: '编译代码'
         run: |
           cd ${GITHUB_WORKSPACE}/tailscale
-          ls
-          git describe --tags --abbrev=0
+          git describe --tags --always
