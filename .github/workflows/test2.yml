@@ -15,3 +15,7 @@ jobs:
           repository: tailscale/tailscale
           path: tailscale
           submodules: true
+      - name: 'Tag'
+        run: |
+          cd ${{GITHUB_WORKSPACE}}/tailscale
+          git describe --tags --abbrev=0
