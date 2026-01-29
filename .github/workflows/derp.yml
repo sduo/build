@@ -6,12 +6,14 @@ jobs:
   amd64:
     runs-on: ubuntu-24.04 #ubuntu-24.04-arm
     steps:
+      # https://github.com/tailscale/tailscale
       - name: '检出 tailscale/tailscale 仓库'
         uses: actions/checkout@v3
         with:
           repository: tailscale/tailscale
           path: tailscale
           submodules: true
+      # 
       - name: '初始化 Go 环境'
         uses: actions/setup-go@v6
         with:
@@ -20,5 +22,7 @@ jobs:
         run: go version
       - name: '编译代码'
         run: |
-          ls ${GITHUB_WORKSPACE}/tailscale/
+          mkdir --parents ${GITHUB_WORKSPACE}/builds/derp
+          cd ${GITHUB_WORKSPACE}/tailscale/derp
+          go build -ldflags "-s -w" -o ${GITHUB_WORKSPACE}/builds/derp/derper
     
