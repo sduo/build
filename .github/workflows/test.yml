@@ -23,7 +23,8 @@ jobs:
       TZ: 'UTC'
       ARTIFACT-PREFIX: 'artifact'
     outputs:
-      artifacts_${{matrix.env}}: ${{steps.build.outputs.artifacts}}
+      artifacts_linux_amd64: ${{steps.build.outputs.artifact_linux-amd64}}
+      artifacts_linux_arm64: ${{steps.build.outputs.artifact_linux-arm64}}
     steps:      
       - name: '构建'
         id: build
@@ -36,7 +37,7 @@ jobs:
           date +"%Z %z" > ${GITHUB_WORKSPACE}/${{env.ARTIFACT-PREFIX}}_${{matrix.env}}
           unset TZ
           date +"%Z %z"
-          echo "artifacts=${GITHUB_WORKSPACE}/${{env.ARTIFACT-PREFIX}}_${{matrix.env}}" >> ${GITHUB_OUTPUT}
+          echo "artifact_${{matrix.env}}=${GITHUB_WORKSPACE}/${{env.ARTIFACT-PREFIX}}_${{matrix.env}}" >> ${GITHUB_OUTPUT}
           exit ${{ matrix.exit }}
   Release:
     runs-on: ubuntu-latest
