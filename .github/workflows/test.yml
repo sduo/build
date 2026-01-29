@@ -1,0 +1,33 @@
+name: 'Test'
+on:  
+  # 手动触发
+  workflow_dispatch:
+jobs:
+  Build:  
+    strategy:
+      matrix:
+        env: [linux-amd64, linux-arm64]
+        include:
+          - env: linux-amd64
+            arch: amd64
+            os: linux
+          - env: linux-arm64
+            arch: arm64
+            os: linux
+    # https://docs.github.com/zh/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job
+    runs-on: ubuntu-latest    
+    env:
+      GO-VERSION: '1.25.6'
+      TZ: 'Asia/Shanghai'
+    steps:      
+      - name: '测试'
+        run: |       
+          export GOARCH=${{ matrix.arch }} GOOS=${{ matrix.os }}
+          echo ${GOARCH}
+          echo ${GOOS}
+          date +"%Z %z"
+          export TZ=${{ env.TZ }}
+          date +"%Z %z"
+          unset TZ
+          date +"%Z %z"
+          
