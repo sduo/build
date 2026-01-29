@@ -51,7 +51,7 @@ jobs:
           echo tar -czf derper_${GOOS}_${GOARCH}.tar.gz derper
       - name: '发布文件'
         env:
-          GH_TOKEN: ${{ secrets.GTH }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: | 
           export ${{ matrix.env }}
           cd ${GITHUB_WORKSPACE}/artifacts/${GOOS}_${GOARCH}
