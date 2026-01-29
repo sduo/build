@@ -49,7 +49,7 @@ jobs:
           echo "arch=${GOARCH}" >> $GITHUB_OUTPUT
           echo "os=${GOOS}" >> $GITHUB_OUTPUT
           cd ${GITHUB_WORKSPACE}/tailscale
-          echo "version=$(cat VERSION.txt)-$(git log -1 --abbrev=9 --format="dev%cd-t%h" --date=iso-local)" >> $GITHUB_OUTPUT
+          echo "version=$(cat VERSION.txt)-dev$(git log -1 --format="%cd" --date=short | tr -d '-')-t$(git log -1 --abbrev=9 --format="%h")" >> $GITHUB_OUTPUT
       - name: '发布文件'
         run: | 
           echo ${{ steps.version.outputs.version }}
