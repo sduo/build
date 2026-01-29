@@ -19,8 +19,6 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: '1.25.6'
-      - name: '检查 Go 版本'
-        run: go version
       - name: '初始化编译环境'
         run: mkdir --parents ${GITHUB_WORKSPACE}/builds/derp
       - name: '编译代码'
@@ -31,6 +29,7 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}/builds
           tar -czf derp.tar.gz derp
+          pwd
       - name: '创建发布'
         id: release        
         uses: actions/create-release@v1
@@ -47,7 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GHT }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ${GITHUB_WORKSPACE}/builds/derp.tar.gz
+          asset_path: /home/runner/work/build/build/builds/derp.tar.gz
           asset_name: derper_amd64.tar.gz
           asset_content_type: application/x-gzip
 
