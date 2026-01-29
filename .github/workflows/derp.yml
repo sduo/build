@@ -30,9 +30,10 @@ jobs:
         run: ls -l ${GITHUB_WORKSPACE}/builds/derp
       - name: '权限设置'
         run: chmod 755 ${GITHUB_WORKSPACE}/builds/derp/derper
+      - name: '检查编译目标'
+        run: ls -l ${GITHUB_WORKSPACE}/builds/derp
       - name: '测试版本'
-        run: chmod 755 ${GITHUB_WORKSPACE}/builds/derp/derper
-          ${GITHUB_WORKSPACE}/builds/derp/derper --help
+        run: ${GITHUB_WORKSPACE}/builds/derp/derper --help
 
 
 
