@@ -30,4 +30,4 @@ jobs:
         run: |         
           cd ${GITHUB_WORKSPACE}/tailscale
           git log -1 --format="%h %cd" --date=format:'%Y%m%d' --abbrev=9
-          go run ./cmd/mkversion
+          build_dist.sh ./cmd/derper
