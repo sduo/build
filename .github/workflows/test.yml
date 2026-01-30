@@ -3,39 +3,108 @@ on:
   # 手动触发
   workflow_dispatch:
     inputs:
-      tag:
+      release:
         description: '请选择版本（latest,dev,vX.XX.X）'
         required: true
         default: 'latest'
         type: string
 jobs:
-  Version:
+  Tag:
     runs-on: ubuntu-latest
     env:
-      REPO_TAILSCALE: 'tailscale/tailscale'
+      REPO: 'tailscale/tailscale'
     outputs:
-      version: ${{steps.check_version.outputs.version}}
+      tag: ${{steps.check_tag.outputs.tag}}
     steps:      
       - name: '检测版本信息'
-        id: check_version
+        id: check_tag
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          TAG: ${{ inputs.tag }}
+          RELEASE: ${{ inputs.release }}
         run: |          
-          if [[ "${TAG}" == "latest" ]] || [[ "${TAG}" == "" ]]; then
-            version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")            
-          elif [[ "${TAG:0:1}" == "v" ]]; then
-            version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")            
+          if [[ "${RELEASE}" == "latest" ]] || [[ "${RELEASE}" == "" ]]; then
+            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")            
+          elif [[ "${RELEASE:0:1}" == "v" ]]; then
+            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")            
           else
-            version=""            
+            tag=""            
           fi
-          if [[ "${TAG}" != "dev" ]] && [[ "${version}" == "" ]]; then
-            echo "获取版本信息错误(${TAG})"
+          if [[ "${RELEASE}" != "dev" ]] && [[ "${tag}" == "" ]]; then
+            echo "获取版本信息错误(${RELEASE})"
             exit 1
           fi
-          if [[ "${TAG}" == "dev" ]]; then
+          if [[ "${RELEASE}" == "dev" ]]; then
             echo "使用最新提交代码"
           else
-            echo "获取版本信息成功(${version})"
+            echo "获取版本信息成功(${tag})"
           fi
-          echo "version=${version}" >> ${GITHUB_OUTPUT}
+          echo "tag=${tag}" >> ${GITHUB_OUTPUT}
+  Build:    
+    runs-on: ubuntu-latest
+    needs: Tag
+    env:
+      REPO: 'tailscale/tailscale'
+      FOLDER: 'tailscale'
+      VERSION_TXT: 'VERSION.txt'
+      VERSION_CMD: './cmd/mkversion'
+      GO: '1.25.6'
+      CGO_ENABLED: 0
+    strategy:
+      matrix:
+        env: [linux-amd64, linux-arm64]        
+        cmd: [ derper ]
+        include:
+          - env: linux-amd64
+            arch: amd64
+            os: linux
+          - env: linux-arm64
+            arch: arm64
+            os: linux
+          - cmd: derper
+            path: /cmd/derper
+    steps:
+      - name: '检出指定版本'
+        if: ${{ needs.Tag.outputs.tag != '' }}
+        uses: actions/checkout@v6        
+        with:
+          repository: ${{ env.REPO }}
+          path: ${{ env.FOLDER }}
+          submodules: true
+          tag: ${{ needs.Tag.outputs.tag }}
+      - name: '检出最新代码'
+        if: ${{ needs.Tag.outputs.tag == '' }}
+        uses: actions/checkout@v6        
+        with:
+          repository: ${{ env.REPO }}
+          path: ${{ env.FOLDER }}
+          submodules: true
+      - name: '初始化 Go 环境'
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO }}
+      - name: '生成版本信息'
+        id: version
+        env:
+          TAG: ${{ needs.Tag.outputs.tag }}
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          cd ${GITHUB_WORKSPACE}/${{ env.FOLDER }}
+          if [[ "${TAG}" == "" ]]; then
+            export TZ=UTC
+            echo "version=$(cat ${{ env.VERSION_TXT }})-$(git log -1 --format="dev%cd-t%h" --date=format:'%Y%m%d' --abbrev=9)" >> ${GITHUB_OUTPUT}
+            unset TZ
+          else            
+            eval `$go run ${{ env.VERSION_CMD }}`
+            if [ "$#" -ge 1 ] && [ "$1" = "shellvars" ]; then
+              cat <<EOF
+            VERSION_MINOR="$VERSION_MINOR"
+            VERSION_SHORT="$VERSION_SHORT"
+            VERSION_LONG="$VERSION_LONG"
+            VERSION_GIT_HASH="$VERSION_GIT_HASH"
+            EOF
+              exit 0
+            fi
+            echo "version=${VERSION_LONG}" >> ${GITHUB_OUTPUT}
+          fi
+        
