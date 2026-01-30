@@ -2,6 +2,9 @@ name: 'Test2'
 on:  
   # 手动触发
   workflow_dispatch:
+  push:
+    branches:
+      - "main"
 jobs:
   Build:  
     # https://docs.github.com/zh/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job
@@ -31,3 +34,5 @@ jobs:
           cd ${GITHUB_WORKSPACE}/tailscale
           ls
           ./build_dist.sh ./cmd/derper
+          ls
+          ls ./cmd/derper
