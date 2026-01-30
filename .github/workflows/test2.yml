@@ -29,5 +29,5 @@ jobs:
           CGO_ENABLED: 0
         run: |         
           cd ${GITHUB_WORKSPACE}/tailscale
-          git log -1 --format="%h %cd" --date=format:'%Y%m%d' --abbrev=9
-          build_dist.sh ./cmd/derper
+          ls
+          ./build_dist.sh ./cmd/derper
