@@ -95,7 +95,7 @@ jobs:
             echo "version=$(cat ${{ env.VERSION_TXT }})-$(git log -1 --format="dev%cd-t%h" --date=format:'%Y%m%d' --abbrev=9)" >> ${GITHUB_OUTPUT}
             unset TZ
           else            
-            sh=$(`$go run ${{ env.VERSION_CMD }}`)
+            sh=$(`go run ${{ env.VERSION_CMD }}`)
             echo ${sh}
           fi
         
