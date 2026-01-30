@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest    
     env:
       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      GO_VERSION: '1.25.6'
     steps:      
       - name: '检出 tailscale/tailscale 仓库'
         uses: actions/checkout@v6
@@ -15,8 +16,14 @@ jobs:
           repository: tailscale/tailscale
           path: tailscale
           submodules: true
+      # https://github.com/actions/setup-go
+      - name: '初始化 Go 环境'
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{env.GO_VERSION}}
       - name: '编译代码'
-        run: |
-          export TZ=UTC
+        env:
+          TZ: UTC          
+        run: |         
           cd ${GITHUB_WORKSPACE}/tailscale
           git log -1 --format="%h %cd" --date=format:'%Y%m%d' --abbrev=9
