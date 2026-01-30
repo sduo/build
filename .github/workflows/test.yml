@@ -95,16 +95,7 @@ jobs:
             echo "version=$(cat ${{ env.VERSION_TXT }})-$(git log -1 --format="dev%cd-t%h" --date=format:'%Y%m%d' --abbrev=9)" >> ${GITHUB_OUTPUT}
             unset TZ
           else            
-            eval `$go run ${{ env.VERSION_CMD }}`
-            if [ "$#" -ge 1 ] && [ "$1" = "shellvars" ]; then
-              cat <<EOF
-            VERSION_MINOR="$VERSION_MINOR"
-            VERSION_SHORT="$VERSION_SHORT"
-            VERSION_LONG="$VERSION_LONG"
-            VERSION_GIT_HASH="$VERSION_GIT_HASH"
-            EOF
-              exit 0
-            fi
-            echo "version=${VERSION_LONG}" >> ${GITHUB_OUTPUT}
+            sh=$(`$go run ${{ env.VERSION_CMD }}`)
+            echo ${sh}
           fi
         
