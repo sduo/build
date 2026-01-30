@@ -22,7 +22,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           TAG: ${{ inputs.tag }}
         run: |          
-          if [[ "${TAG}" = = "latest" ]] || [[ "${TAG}" == "" ]]; then
+          if [[ "${TAG}" == "latest" ]] || [[ "${TAG}" == "" ]]; then
             version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")            
           elif [[ "${TAG:0:1}" == "v" ]]; then
             version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")            
