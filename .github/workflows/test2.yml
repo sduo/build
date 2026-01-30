@@ -32,7 +32,5 @@ jobs:
           CGO_ENABLED: 0
         run: |         
           cd ${GITHUB_WORKSPACE}/tailscale
-          ls
-          ./build_dist.sh ./cmd/derper
-          ls
-          ls ./cmd/derper
+          git fetch origin --tags
+          git tag -l "v*" --sort=-v:refname | grep -v -- "-pre$" | head -1
