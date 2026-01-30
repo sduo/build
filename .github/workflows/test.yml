@@ -22,16 +22,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           TAG: ${{ inputs.tag }}
         run: |          
-          if [[ "${TAG}" = "latest" ]] || [[ "${TAG}" = "" ]]; then
+          if [[ "${TAG}" = = "latest" ]] || [[ "${TAG}" == "" ]]; then
             version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")            
-          elif [[ "${TAG:0:1}" = "v" ]]; then
+          elif [[ "${TAG:0:1}" == "v" ]]; then
             version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")            
           else
             version=""            
           fi
-          if [ "${TAG}" != "dev" ] && [[ "${version}" = "" ]]; then
+          if [[ "${TAG}" != "dev" ]] && [[ "${version}" == "" ]]; then
             echo "获取版本信息错误(${TAG})"
             exit 1
           fi
-          echo "获取版本信息成功(${version})"
+          if [[ "${TAG}" == "dev" ]]; then
+            echo "使用最新提交代码"
+          else
+            echo "获取版本信息成功(${version})"
+          fi
           echo "version=${version}" >> ${GITHUB_OUTPUT}
