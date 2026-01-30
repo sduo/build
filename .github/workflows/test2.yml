@@ -34,4 +34,4 @@ jobs:
         run: |         
           cd ${GITHUB_WORKSPACE}/tailscale
           gh api repos/${{ env.REPOSITORY }}/releases --jq '.[] | select(.draft == false and .prerelease == false) | .tag_name' | head -1
-          gh api repos/${{ env.REPOSITORY }}/releases --jq '.[] | select(.draft == false and .prerelease == true) | .tag_name' | head -1
+          gh api repos/${{ env.REPOSITORY }}/releases --jq '.[] | select(.draft == false and .prerelease == true) | head -10
