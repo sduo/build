@@ -2,6 +2,12 @@ name: 'Test'
 on:  
   # 手动触发
   workflow_dispatch:
+    inputs:
+      tag:
+        description: '请选择版本（latest,dev,vX.XX.X）'
+        required: true
+        default: 'latest'
+        type: string
 jobs:
   Build:  
     strategy:
