@@ -4,13 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: '请选择版本（auto,dev,vX.XX.X）'
+        description: '请选择版本（latest,dev,vX.XX.X）'
         required: true
-        default: 'auto'
+        default: 'latest'
         type: string
 jobs:
   Version:
     runs-on: ubuntu-latest
+    env:
+      REPO_TAILSCALE: 'tailscale/tailscale'
     outputs:
       version: ${{steps.check_version.outputs.version}}
     steps:      
@@ -18,7 +20,17 @@ jobs:
         id: check_version
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          TAG: ${{ inputs.tag }}
         run: |
-          echo ${{inputs.tag}}
-          echo "version=${{inputs.tag}}" >> ${GITHUB_OUTPUT}
-          
+          if [ "${TAG}" = "latest" ] || [ "${TAG}" = "" ]; then
+            version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")            
+          elif [ "${TAG:0:1}" = "v" ]; then
+            version=$(gh api repos/tailscale/tailscale/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")            
+          elif [ "${TAG}" = "dev" ]; then
+            version=${TAG}            
+          fi
+          if [ "${version}" = ""]; then
+            echo "获取版本信息错误(${TAG})"
+            exit 1
+          fi
+          echo "version="${version}" >> ${GITHUB_OUTPUT}
