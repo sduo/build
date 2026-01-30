@@ -96,6 +96,7 @@ jobs:
             unset TZ
           else            
             go run ${{ env.VERSION_CMD }} > version_${TAG}
-            cat version_${TAG}
+            source version_${TAG}
+            echo ${VERSION_LONG}
           fi
         
