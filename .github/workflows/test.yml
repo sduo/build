@@ -42,7 +42,7 @@ jobs:
             echo "获取最新提交信息"
             sha=$(gh api repos/${{ env.REPO }}/commits --jq "limit(1; .[] | .sha)")
           else
-            echo "获取指定提交信息${tag}"
+            echo "获取指定提交信息(${tag})"
             sha=$(gh api repos/${{ env.REPO }}/tags --jq "limit(1; .[] | select(.name == \"${tag}\")) | .commit.sha ")
           fi         
           echo "获取提交信息成功(${tag}:${sha})"
