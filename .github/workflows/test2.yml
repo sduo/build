@@ -24,5 +24,6 @@ jobs:
           mkdir tailscale
           echo "${{ github.workspace }}">tailscale/v1.txt
           echo $(ls -R tailscale)>list.txt
+          git add --all
           git commit --allow-empty-messag -m ""
           git push
