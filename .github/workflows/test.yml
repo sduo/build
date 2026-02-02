@@ -28,7 +28,7 @@ jobs:
             tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")
           elif [[ "${RELEASE:0:1}" == "v" ]]; then
             echo "获取指定发布版本(${RELEASE})"
-            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")      
+            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.tag_name == \"${RELEASE}\" )) | .tag_name ")            
           elif [[ "${RELEASE}" == "dev" ]]; then
             echo "使用最新提交信息"
             tag="dev"
