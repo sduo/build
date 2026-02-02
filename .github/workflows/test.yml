@@ -9,16 +9,13 @@ on:
         default: 'latest'
         type: string
 jobs:
-  Tag:
+  CheckCommit:
     runs-on: ubuntu-latest
     env:
-      REPO: 'tailscale/tailscale'
-      FOLDER: 'tailscale'
-      GO: '1.25.6'
+      REPO: 'tailscale/tailscale'      
       RELEASE: ${{ inputs.release }}
     outputs:
       sha: ${{steps.commit.outputs.sha}}
-      version: ${{steps.version.outputs.version}}
     steps:      
       - name: '检测版本信息'
         id: commit
@@ -43,47 +40,15 @@ jobs:
           fi
           echo "获取提交信息成功(${output})"
           echo "sha=${output}" >> ${GITHUB_OUTPUT}
-          exit 0
-      - name: '检出指定提交'
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ env.REPO }}
-          ref: ${{steps.commit.outputs.sha}}
-          path: ${{ env.FOLDER }}
-          submodules: true
-      - name: '初始化 Go 环境'
-        uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO }}
-      - name: '生成版本信息'
-        id: version
-        env:
-          SHA: ${{steps.commit.outputs.sha}}
-          CGO_ENABLED: 0
-          VERSION_TXT: 'VERSION.txt'
-          VERSION_CMD: './cmd/mkversion'
-          VERSION_PREFIX: 'version'
-        run: |
-          cd ${GITHUB_WORKSPACE}/${{ env.FOLDER }}
-          if [[ "${RELEASE}" == "dev" ]]; then
-            export TZ=UTC
-            echo "version=$(cat ${{ env.VERSION_TXT }})-$(git log -1 --format="dev%cd-t%h" --date=format:'%Y%m%d' --abbrev=9)" >> ${GITHUB_OUTPUT}
-            unset TZ
-          else            
-            go run ${{ env.VERSION_CMD }} > ${VERSION_PREFIX}.${SHA}
-            source ${VERSION_PREFIX}.${SHA}
-            echo "version${VERSION_LONG}" >> ${GITHUB_OUTPUT}
-          fi
-      - name: '缓存工作空间'
-        uses: actions/cache@v4
-        with:
-          path: ${GITHUB_WORKSPACE}/${{ env.FOLDER }}
-          key: ${{steps.commit.outputs.sha}}
+          exit 0        
   Build:    
     runs-on: ubuntu-latest
-    needs: Tag
+    needs: CheckCommit
     env:
       REPO: 'tailscale/tailscale'
+      FOLDER: 'tailscale'
+      GO: '1.25.6'
+      RELEASE: ${{ inputs.release }}
     strategy:
       matrix:
         env: [linux-amd64, linux-arm64]        
@@ -92,12 +57,43 @@ jobs:
           - env: linux-amd64
             arch: amd64
             os: linux
+            version: '-version'
           - env: linux-arm64
             arch: arm64
             os: linux
+            version: ''
           - cmd: derper
-            path: /cmd/derper
+            path: /cmd/derper    
     steps:
+      - name: '检出指定提交'
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.REPO }}
+          ref: ${{needs.CheckCommit.outputs.sha}}
+          path: ${{ env.FOLDER }}
+          submodules: true
+      - name: '初始化 Go 环境'
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO }}
+      - name: '执行编译(${{ matrix.cmd }})'
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}          
+        run: |
+          mkdir --parents ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
+          if [[ "${RELEASE}" == "dev" ]]; then
+            cd ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/${{ matrix.path }}
+            go build -ldflags "-s -w" -v -o ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
+          else
+            cd ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
+            ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/build_dist.sh ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/${{ matrix.path }}
+          fi
+      - name: '获取版本(${{ matrix.cmd }})'
+        if: ${{ matrix.version != '' }}
+        run: |
+          cd ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
+          ${{ matrix.cmd }} ${{ matrix.version }}
       
       
       
