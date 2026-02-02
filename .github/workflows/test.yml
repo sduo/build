@@ -99,20 +99,30 @@ jobs:
             export TZ=UTC
             version="$(cat ${{ env.VERSION }})-$(git log -1 --format="dev%cd-t%h" --abbrev=9 --date=format:%Y$m%d)"
             unset TZ
-            path="${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}"
-            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}
+            folder="${version}_${{ matrix.os }}_${{ matrix.arch }}"
+            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${folder}/${{ matrix.cmd }}
             cd ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}/${{ matrix.cmd }}
-            go build -ldflags "-s -w" -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}/${{ matrix.cmd }} ./...
+            go build -ldflags "-s -w" -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${folder}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
           elif [[ "${TAG:0:1}" == "v" ]]; then
             version="${{ env.TAG }}"
             if [[ "${version:0:1}" == "v" ]]; then
               version=${version:1}
             fi
-            path="${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}"
-            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}   
+            folder="${version}_${{ matrix.os }}_${{ matrix.arch }}"
+            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${folder}/${{ matrix.cmd }}
             cd ${{ github.workspace }}/${{ env.FOLDER }}
-            ${{ github.workspace }}/${{ env.FOLDER }}/${{ env.BUILD_SRCIPT }} -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}/${{ matrix.cmd }} ./${{ matrix.path }}/${{ matrix.cmd }}
+            ${{ github.workspace }}/${{ env.FOLDER }}/${{ env.BUILD_SRCIPT }} -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${folder}/${{ matrix.cmd }}/${{ matrix.cmd }} ./${{ matrix.path }}/${{ matrix.cmd }}
           fi
-          echo "path=${path}" >> ${GITHUB_OUTPUT}
-          echo "${{ matrix.cmd }}:${version}"
+          echo "folder=${folder}" >> ${GITHUB_OUTPUT}
+          echo "${{ matrix.cmd }}:${version}:${folder}"
+      - name: '打包文件(${{ matrix.cmd }})'          
+        run: |
+          cd ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ steps.build.outputs.folder }}/${{ matrix.cmd }}
+          tar --create --gzip --file=..//${{ matrix.cmd }}-${{ steps.build.outputs.folder }}.tar.gz *
+      - name: '上传文件(${{ matrix.cmd }})'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 
+          path: ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ steps.build.outputs.folder }}/${{ matrix.cmd }}-${{ steps.build.outputs.folder }}.tar.gz
+          overwrite: true
       
