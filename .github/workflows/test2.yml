@@ -14,7 +14,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: 'test'
-          submodules: true    
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: '编译代码'       
         run: |         
           cd ${{ github.workspace }}/test
