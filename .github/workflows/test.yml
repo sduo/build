@@ -16,6 +16,7 @@ jobs:
       RELEASE: ${{ inputs.release }}
     outputs:
       sha: ${{steps.commit.outputs.sha}}
+      tag: ${{steps.commit.outputs.tag}}
     steps:      
       - name: '检测版本信息'
         id: commit
@@ -23,23 +24,32 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |          
           if [[ "${RELEASE}" == "latest" ]] || [[ "${RELEASE}" == "" ]]; then
-            output=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")            
+            echo "获取最新发布版本"
+            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")
           elif [[ "${RELEASE:0:1}" == "v" ]]; then
-            output=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")            
-          else
-            output=""
-          fi
-          if [[ "${output}" != "" ]]; then
-            output=$(gh api repos/${{ env.REPO }}/tags --jq "limit(1; .[] | select(.name == \"${tag}\")) | .commit.sha ")
+            echo "获取指定发布版本(${RELEASE})"
+            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.tag_name == \"${TAG}\" )) | .tag_name ")      
           elif [[ "${RELEASE}" == "dev" ]]; then
-            output=$(gh api repos/${{ env.REPO }}/commits --jq "limit(1; .[] | .sha)")
+            echo "使用最新提交信息"
+            tag="dev"
+          else
+            tag=""
           fi
-          if [[ "${output}" == "" ]]
+          
+          if [[ "${tag}" == "" ]]
             echo "获取提交信息失败(${RELEASE})"
             exit 1
-          fi
-          echo "获取提交信息成功(${output})"
-          echo "sha=${output}" >> ${GITHUB_OUTPUT}
+          elif [[ "${tag}" == "dev" ]]; then
+            echo "获取最新提交信息"
+            sha=$(gh api repos/${{ env.REPO }}/commits --jq "limit(1; .[] | .sha)")
+          else
+            echo "获取指定提交信息${output}"
+            sha=$(gh api repos/${{ env.REPO }}/tags --jq "limit(1; .[] | select(.name == \"${tag}\")) | .commit.sha ")
+          fi          
+         
+          echo "获取提交信息成功(${tag}:${sha})"
+          echo "tag=${tag}" >> ${GITHUB_OUTPUT}
+          echo "sha=${sha}" >> ${GITHUB_OUTPUT}
           exit 0        
   Build:    
     runs-on: ubuntu-latest
@@ -48,7 +58,7 @@ jobs:
       REPO: 'tailscale/tailscale'
       FOLDER: 'tailscale'
       GO: '1.25.6'
-      RELEASE: ${{ inputs.release }}
+      TAG: ${{ needs.CheckCommit.outputs.tag }}
     strategy:
       matrix:
         env: [linux-amd64, linux-arm64]        
@@ -81,19 +91,18 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}          
         run: |
-          mkdir --parents ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
+          mkdir --parents ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
           if [[ "${RELEASE}" == "dev" ]]; then
             cd ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/${{ matrix.path }}
-            go build -ldflags "-s -w" -v -o ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
+            go build -ldflags "-s -w" -v -o ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
           else
-            cd ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
+            cd ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
             ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/build_dist.sh ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/${{ matrix.path }}
           fi
       - name: '获取版本(${{ matrix.cmd }})'
         if: ${{ matrix.version != '' }}
         run: |
-          cd ${ GITHUB_WORKSPACE }/artifacts/${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
-          ${{ matrix.cmd }} ${{ matrix.version }}
+          ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ${{ matrix.version }}
       
       
       
