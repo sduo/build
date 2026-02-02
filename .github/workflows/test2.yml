@@ -18,4 +18,4 @@ jobs:
       - name: '编译代码'       
         run: |         
           cd ${{ github.workspace }}
-          ls
+          ls -R
