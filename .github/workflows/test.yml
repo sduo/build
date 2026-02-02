@@ -88,7 +88,7 @@ jobs:
         with:
           go-version-file: '${{ env.GO_MOD }}'
           cache-dependency-path: |
-            '${{ env.FOLDER }}/${{ env.GO_SUM }}'
+            '${{ env.FOLDER }}'
       - name: '执行编译(${{ matrix.cmd }})'
         id: build
         env:
