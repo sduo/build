@@ -36,14 +36,14 @@ jobs:
             tag=""
           fi
           
-          if [[ "${tag}" == "" ]]
+          if [[ "${tag}" == "" ]]; then
             echo "获取提交信息失败(${RELEASE})"
             exit 1
           elif [[ "${tag}" == "dev" ]]; then
             echo "获取最新提交信息"
             sha=$(gh api repos/${{ env.REPO }}/commits --jq "limit(1; .[] | .sha)")
           else
-            echo "获取指定提交信息${output}"
+            echo "获取指定提交信息${tag}"
             sha=$(gh api repos/${{ env.REPO }}/tags --jq "limit(1; .[] | select(.name == \"${tag}\")) | .commit.sha ")
           fi          
          
