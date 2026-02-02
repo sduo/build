@@ -92,12 +92,12 @@ jobs:
           GOARCH: ${{ matrix.arch }}          
         run: |
           mkdir --parents ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
-          if [[ "${RELEASE}" == "dev" ]]; then
+          if [[ "${TAG}" == "dev" ]]; then
             cd ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}
             go build -ldflags "-s -w" -v -o ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
-          else
+          elif [[ "${TAG:0:1}" == "v" ]]; then
             cd ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
-            ${{ github.workspace }}/${{ env.FOLDER }}/build_dist.sh ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}
+            ${{ github.workspace }}/${{ env.FOLDER }}/build_dist.sh ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}          
           fi
       - name: '获取版本(${{ matrix.cmd }})'
         if: ${{ matrix.version != '' }}
