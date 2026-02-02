@@ -100,9 +100,14 @@ jobs:
             ${{ github.workspace }}/${{ env.FOLDER }}/build_dist.sh ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}          
           fi
       - name: '获取版本(${{ matrix.cmd }})'
+        id: version
         if: ${{ matrix.version != '' }}
         run: |
-          ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ${{ matrix.version }}
+          version=$(${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ${{ matrix.version }})
+          echo "version=${version}" >> ${GITHUB_OUTPUT}
+      - name: '测试版本'
+        run: |
+          echo ${{steps.version.outputs.version}}
       
       
       
