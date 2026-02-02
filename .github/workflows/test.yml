@@ -73,7 +73,7 @@ jobs:
             arch: arm64
             os: linux
           - cmd: derper
-            path: /cmd
+            path: cmd
     steps:
       - name: '检出指定提交'
         uses: actions/checkout@v6
@@ -112,6 +112,5 @@ jobs:
             ${{ github.workspace }}/${{ env.FOLDER }}/${{ env.BUILD_SRCIPT }} -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}/${{ matrix.cmd }} ./${{ matrix.path }}/${{ matrix.cmd }}
           fi
           echo "path=${path}" >> ${GITHUB_OUTPUT}
-          ll ${path}          
           echo "${{ matrix.cmd }}:${version}"
       
