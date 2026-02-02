@@ -118,7 +118,7 @@ jobs:
       - name: '打包文件(${{ matrix.cmd }})'          
         run: |
           cd ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ steps.build.outputs.folder }}/${{ matrix.cmd }}
-          tar --create --gzip --file=..//${{ matrix.cmd }}-${{ steps.build.outputs.folder }}.tar.gz *
+          tar --create --gzip --file=../${{ matrix.cmd }}-${{ steps.build.outputs.folder }}.tar.gz *
       - name: '上传文件(${{ matrix.cmd }})'
         uses: actions/upload-artifact@v4
         with:
