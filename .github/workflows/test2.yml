@@ -17,7 +17,7 @@ jobs:
           submodules: true    
       - name: '编译代码'       
         run: |         
-          cd ${{ github.workspace }}
+          cd ${{ github.workspace }}/test
           mkdir tailscale
           echo "${{ github.workspace }}">tailscale/v1.txt
           echo $(ls -R tailscale)>list.txt
