@@ -59,6 +59,7 @@ jobs:
       FOLDER: 'tailscale'
       BUILD_SRCIPT: 'build_dist.sh'
       DISTRIBUTION: 'artifacts'
+      VERSION: 'VERSION.txt'
       GO: '1.25.6'
       TAG: ${{ needs.CheckCommit.outputs.tag }}
       SHA: ${{ needs.CheckCommit.outputs.sha }}
@@ -98,7 +99,7 @@ jobs:
           if [[ "${TAG}" == "dev" ]]; then
             cd ${{ github.workspace }}/${{ env.FOLDER }}
             export TZ=UTC
-            version=$(git log -1 --format="dev%cd-t%h" --abbrev=9 --date=format:%Y$m%d)
+            version="$(cat ${{ env.VERSION }})-$(git log -1 --format="dev%cd-t%h" --abbrev=9 --date=format:%Y$m%d)"
             unset TZ          
             mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}          
             cd ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}/${{ matrix.cmd }}
