@@ -18,5 +18,6 @@ jobs:
       - name: '编译代码'       
         run: |         
           cd ${{ github.workspace }}
-          echo ${{ github.repository }}
-          ls -R
+          mkdir tailscale
+          echo "${{ github.workspace }}">tailscale/v1.txt
+          echo $(ls -R tailscale)>list.txt
