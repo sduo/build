@@ -103,12 +103,12 @@ jobs:
             mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}          
             cd ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}/${{ matrix.cmd }}
             go build -ldflags "-s -w" -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
-            echo "path=/${version}_${{ matrix.os }}_${{ matrix.arch }}" >> ${GITHUB_OUTPUT}
+            echo "path=${version}_${{ matrix.os }}_${{ matrix.arch }}" >> ${GITHUB_OUTPUT}
           elif [[ "${TAG:0:1}" == "v" ]]; then
             mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}   
             cd ${{ github.workspace }}/${{ env.FOLDER }}
             ${{ github.workspace }}/${{ env.FOLDER }}/${{ env.BUILD_SRCIPT }} -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./${{ matrix.path }}/${{ matrix.cmd }}
-            echo "path=/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}" >> ${GITHUB_OUTPUT}
+            echo "path=${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}" >> ${GITHUB_OUTPUT}
           fi
       - name: '获取版本(${{ matrix.cmd }})'
         id: version
