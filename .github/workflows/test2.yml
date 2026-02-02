@@ -21,4 +21,5 @@ jobs:
           mkdir tailscale
           echo "${{ github.workspace }}">tailscale/v1.txt
           echo $(ls -R tailscale)>list.txt
-          git status
+          git commit --allow-empty
+          git push
