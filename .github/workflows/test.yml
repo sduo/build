@@ -87,8 +87,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: '${{ env.FOLDER }}/${{ env.GO_MOD }}'
-          cache-dependency-path: |
-            '${{ env.FOLDER }}/${{ env.GO_SUM }}'
+          cache-dependency-path: '${{ env.FOLDER }}/${{ env.GO_SUM }}'
       - name: '执行编译(${{ matrix.cmd }})'
         id: build
         env:
