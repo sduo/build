@@ -120,9 +120,18 @@ jobs:
           cd ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ steps.build.outputs.folder }}/${{ matrix.cmd }}
           tar --create --gzip --file=../${{ matrix.cmd }}-${{ steps.build.outputs.folder }}.tar.gz *
       - name: '上传文件(${{ matrix.cmd }})'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.cmd }}-${{ steps.build.outputs.folder }}.tar.gz
           path: ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ steps.build.outputs.folder }}/${{ matrix.cmd }}-${{ steps.build.outputs.folder }}.tar.gz
           overwrite: true
-      
+  Publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: '下载文件'
+        uses: actions/download-artifact@v7
+        with:
+          path: ${{ github.workspace }}
+      - name: '列出文件'
+        run: |
+          ls ${{ github.workspace }}
