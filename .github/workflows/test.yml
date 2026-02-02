@@ -86,7 +86,7 @@ jobs:
       - name: '初始化 Go 环境'
         uses: actions/setup-go@v6
         with:
-          go-version-file: '${{ env.GO_MOD }}'
+          go-version-file: '${{ env.FOLDER }}/${{ env.GO_MOD }}'
           cache-dependency-path: |
             '${{ env.FOLDER }}'
       - name: '执行编译(${{ matrix.cmd }})'
