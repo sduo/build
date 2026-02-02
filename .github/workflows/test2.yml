@@ -21,4 +21,4 @@ jobs:
           mkdir tailscale
           echo "${{ github.workspace }}">tailscale/v1.txt
           echo $(ls -R tailscale)>list.txt
-          git diff
+          git status
