@@ -34,8 +34,7 @@ jobs:
             tag="dev"
           else
             tag=""
-          fi
-          
+          fi          
           if [[ "${tag}" == "" ]]; then
             echo "获取提交信息失败(${RELEASE})"
             exit 1
@@ -45,8 +44,7 @@ jobs:
           else
             echo "获取指定提交信息${tag}"
             sha=$(gh api repos/${{ env.REPO }}/tags --jq "limit(1; .[] | select(.name == \"${tag}\")) | .commit.sha ")
-          fi          
-         
+          fi         
           echo "获取提交信息成功(${tag}:${sha})"
           echo "tag=${tag}" >> ${GITHUB_OUTPUT}
           echo "sha=${sha}" >> ${GITHUB_OUTPUT}
