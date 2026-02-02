@@ -71,11 +71,9 @@ jobs:
           - env: linux-amd64
             arch: amd64
             os: linux
-            version: '-version'
           - env: linux-arm64
             arch: arm64
             os: linux
-            version: ''
           - cmd: derper
             path: /cmd
     steps:
@@ -100,21 +98,22 @@ jobs:
             cd ${{ github.workspace }}/${{ env.FOLDER }}
             export TZ=UTC
             version="$(cat ${{ env.VERSION }})-$(git log -1 --format="dev%cd-t%h" --abbrev=9 --date=format:%Y$m%d)"
-            unset TZ          
-            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}          
+            unset TZ
+            path="${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}"
+            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}
             cd ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}/${{ matrix.cmd }}
-            go build -ldflags "-s -w" -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
-            echo "path=${version}_${{ matrix.os }}_${{ matrix.arch }}" >> ${GITHUB_OUTPUT}
+            go build -ldflags "-s -w" -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}/${{ matrix.cmd }} ./...
           elif [[ "${TAG:0:1}" == "v" ]]; then
-            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}   
+            version="${{ env.TAG }}"
+            if [[ "${version:0:1}" == "v" ]]; then
+              version=${version:1}
+            fi
+            path="${version}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}"
+            mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}   
             cd ${{ github.workspace }}/${{ env.FOLDER }}
-            ${{ github.workspace }}/${{ env.FOLDER }}/${{ env.BUILD_SRCIPT }} -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./${{ matrix.path }}/${{ matrix.cmd }}
-            echo "path=${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}" >> ${GITHUB_OUTPUT}
+            ${{ github.workspace }}/${{ env.FOLDER }}/${{ env.BUILD_SRCIPT }} -v -o ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${path}/${{ matrix.cmd }} ./${{ matrix.path }}/${{ matrix.cmd }}
           fi
-      - name: '获取版本(${{ matrix.cmd }})'
-        id: version
-        if: ${{ matrix.version != '' }}
-        run: |
-          version=$(${{ github.workspace }}/${{ env.DISTRIBUTION }}/${{ steps.build.outputs.path }}/${{ matrix.cmd }}/${{ matrix.cmd }} ${{ matrix.version }})
-          echo "${{matrix.cmd}}:${version}"
+          echo "path=${path}" >> ${GITHUB_OUTPUT}
+          ll ${path}          
+          echo "${{ matrix.cmd }}:${version}"
       
