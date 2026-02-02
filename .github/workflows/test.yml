@@ -91,18 +91,18 @@ jobs:
           GOOS: ${{ matrix.os }}
           GOARCH: ${{ matrix.arch }}          
         run: |
-          mkdir --parents ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
+          mkdir --parents ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
           if [[ "${RELEASE}" == "dev" ]]; then
-            cd ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/${{ matrix.path }}
-            go build -ldflags "-s -w" -v -o ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
+            cd ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}
+            go build -ldflags "-s -w" -v -o ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ./...
           else
-            cd ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
-            ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/build_dist.sh ${ GITHUB_WORKSPACE }/${{ env.FOLDER }}/${{ matrix.path }}
+            cd ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}
+            ${{ github.workspace }}/${{ env.FOLDER }}/build_dist.sh ${{ github.workspace }}/${{ env.FOLDER }}/${{ matrix.path }}
           fi
       - name: '获取版本(${{ matrix.cmd }})'
         if: ${{ matrix.version != '' }}
         run: |
-          ${ GITHUB_WORKSPACE }/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ${{ matrix.version }}
+          ${{ github.workspace }}/artifacts/${{ env.TAG }}_${{ matrix.os }}_${{ matrix.arch }}/${{ matrix.cmd }}/${{ matrix.cmd }} ${{ matrix.version }}
       
       
       
