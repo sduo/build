@@ -58,7 +58,8 @@ jobs:
       BUILD_SRCIPT: 'build_dist.sh'
       DISTRIBUTION: 'artifacts'
       VERSION: 'VERSION.txt'
-      GO: '1.25.6'
+      GO_MOD: 'go.mod'
+      GO_SUM: 'go.sum'
       TAG: ${{ needs.CheckCommit.outputs.tag }}
       SHA: ${{ needs.CheckCommit.outputs.sha }}
     strategy:
@@ -85,7 +86,9 @@ jobs:
       - name: '初始化 Go 环境'
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO }}
+          go-version-file: '${{ env.GO_MOD }}'
+          cache-dependency-path: |
+            '${{ env.FOLDER }}/${{ env.GO_SUM }}'
       - name: '执行编译(${{ matrix.cmd }})'
         id: build
         env:
