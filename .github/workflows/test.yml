@@ -157,6 +157,7 @@ jobs:
           release="${{ env.FOLDER }}/${version}.md"
           echo -en "# ${version}\n" > ${release}
           echo -en '----\n' >> ${release}
+          ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz
           for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
           do      
           echo ${gz}
