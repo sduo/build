@@ -163,16 +163,16 @@ jobs:
             echo "* [${ gz }](${{ github.server_url }}/${{ github.repository }}/releases/download/${version}/${gz})" >> ${file}       
           fi
           done          
+          cat ${file}
           echo "# ${{ env.Title }}" > ${{ env.FOLDER }}.md
           echo '----' >> ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do
           if [[ -f "${md}" ]]; then            
-            `cat ${md}` >> ${{ env.FOLDER }}.md
+            cat ${md} >> ${{ env.FOLDER }}.md
             echo. >> ${{ env.FOLDER }}.md
           fi
           done
-          cat ${file}
           cat ${{ env.FOLDER }}.md
       - name: '提交发布信息'
         run: |
