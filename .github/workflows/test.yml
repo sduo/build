@@ -134,21 +134,20 @@ jobs:
     env:
       FOLDER: 'tailscale'
       Title: 'Tailscale'
-    steps:
-      - name: '配置发布环境'
-        run: |
-          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
-          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
-          mkdir --parents ${{ github.workspace }}/${{ env.FOLDER }}
-      - name: '下载发布文件'
-        uses: actions/download-artifact@v7
-        with:
-          path: ${{ github.workspace }}/${{ env.FOLDER }}      
+    steps:      
       - name: '检出仓库'
         uses: actions/checkout@v6
         with:
           path: '${{ github.event.repository.name }}'
-          submodules: true      
+          submodules: true   
+      - name: '配置发布环境'
+        run: |
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+      - name: '下载发布文件'
+        uses: actions/download-artifact@v7
+        with:
+          path: ${{ github.workspace }}/${{ env.FOLDER }}      
       - name: '生成发布信息'
         run: |
           ls -flr ${{ github.workspace }}
@@ -178,6 +177,7 @@ jobs:
           cat ${{ env.FOLDER }}.md
       - name: '提交发布信息'
         run: |
+          cd ${{ github.workspace }}/${{ github.event.repository.name }}
           git add --all
-          git commit --allow-empty-messag -m "v${{ needs.Build.outputs.version }}"
+          git commit --allow-empty-messag -m "${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
           git push
