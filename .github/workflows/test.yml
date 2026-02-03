@@ -134,6 +134,7 @@ jobs:
     env:
       FOLDER: 'tailscale'
       Title: 'Tailscale'
+      REPO: 'tailscale/tailscale'
       DOWNLOAD: 'releases/download'
     steps:      
       - name: '检出仓库'
@@ -165,7 +166,7 @@ jobs:
           fi
           done          
           cat ${release}
-          echo -en "# ${{ env.Title }}\n\n" > ${{ env.FOLDER }}.md
+          echo -en "# [${{ env.Title }}](${{ github.server_url }}/${{ env.REPO }})\n\n" > ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do          
           if [[ -f "${md}" ]]; then
@@ -194,7 +195,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-          gh release create "${tag}" ${{ github.workspace }}/${{ env.FOLDER }}/**/*.tar.gz --repo ${{ github.repository }} --title "${{ env.Title }} v${{ needs.Build.outputs.version }}" 
+          gh release create "${tag}" ${{ github.workspace }}/${{ env.FOLDER }}/**/*.tar.gz --repo ${{ github.repository }} --title "${{ env.Title }} v${{ needs.Build.outputs.version }}" --notes "[${{ env.Title }}](${{ github.server_url }}/${{ env.REPO }})"
           
             
           
