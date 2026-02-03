@@ -150,7 +150,7 @@ jobs:
           path: ${{ github.workspace }}/${{ env.FOLDER }}      
       - name: '生成发布信息'
         run: |
-          ls -flr ${{ github.workspace }}
+          ls -flR ${{ github.workspace }}
           cd ${{ github.workspace }}/${{ github.event.repository.name }}
           mkdir --parents ${{ env.FOLDER }}
           version="v${{ needs.Build.outputs.version }}"
@@ -164,7 +164,6 @@ jobs:
           fi
           done          
           cat ${release}
-          ls -flr ${{ github.workspace }}
           echo -en "# ${{ env.Title }}\n" > ${{ env.FOLDER }}.md
           echo -en '----\n' >> ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
@@ -174,9 +173,10 @@ jobs:
             echo -en '\n' >> ${{ env.FOLDER }}.md
           fi
           done
-          cat ${{ env.FOLDER }}.md
+          cat ${{ env.FOLDER }}.md          
       - name: '提交发布信息'
         run: |
+          ls -flR ${{ github.workspace }}
           cd ${{ github.workspace }}/${{ github.event.repository.name }}
           git add --all
           git commit --allow-empty-messag -m "${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
