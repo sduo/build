@@ -157,19 +157,19 @@ jobs:
           echo -en "# ${version}\n" > ${release}
           echo -en '----\n' >> ${release}
           for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
-          do
-          echo ${gz}
-          if [[ -f "${gz}" ]]; then            
-            echo -en "* [${ gz }](${{ github.server_url }}/${{ github.repository }}/releases/download/${version}/${gz})\n" >> ${release}       
+          do          
+          if [[ -f "${gz}" ]]; then
+            echo ${gz}
+            echo -en "* [${gz}](${{ github.server_url }}/${{ github.repository }}/releases/download/${version}/${gz})\n" >> ${release}       
           fi
           done          
           cat ${release}
           echo -en "# ${{ env.Title }}\n" > ${{ env.FOLDER }}.md
           echo -en '----\n' >> ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
-          do
-          echo ${md}
-          if [[ -f "${md}" ]]; then            
+          do          
+          if [[ -f "${md}" ]]; then    
+            echo ${md}
             cat ${md} >> ${{ env.FOLDER }}.md
             echo -en '\n' >> ${{ env.FOLDER }}.md
           fi
@@ -178,7 +178,10 @@ jobs:
       - name: '提交发布信息'
         run: |
           ls -flR ${{ github.workspace }}
-          cd ${{ github.workspace }}/${{ github.event.repository.name }}
+          cd ${{ github.workspace }}/${{ github.event.repository.name }}          
           git add --all
-          git commit --allow-empty-messag -m "${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-          git push
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            git commit --allow-empty-messag -m "${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
+            git push
+          fi
