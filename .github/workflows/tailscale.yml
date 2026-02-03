@@ -186,6 +186,7 @@ jobs:
             git commit -m "${tag}"            
             sha=$(git log -1 --format="%H")
             echo "${tag}:${sha}"
+            git push --force            
             git tag --force ${tag} ${sha}
             echo "${tag}:$(git rev-parse ${tag})"
             git push --tags --force
