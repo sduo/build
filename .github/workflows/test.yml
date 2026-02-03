@@ -189,4 +189,12 @@ jobs:
             echo "${tag}:$(git rev-parse ${tag})"
             git push --tags
           fi
+      - name: '创建发布'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
+          gh release create "${tag}" --repo ${{ github.repository }} --title "${{ env.Title }} v${{ needs.Build.outputs.version }}" ${{ github.workspace }}/${{ env.FOLDER }}/**/*.tar.gz
+          
+            
           
