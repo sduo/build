@@ -168,7 +168,7 @@ jobs:
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do
           if [[ -f "${md}" ]]; then            
-            `cat ${{ env.FOLDER }}/${md}` >> ${{ env.FOLDER }}.md
+            `cat ${md}` >> ${{ env.FOLDER }}.md
             echo. >> ${{ env.FOLDER }}.md
           fi
           done
