@@ -154,26 +154,24 @@ jobs:
           cd ${{ github.workspace }}/${{ github.event.repository.name }}
           mkdir --parents ${{ env.FOLDER }}
           version="v${{ needs.Build.outputs.version }}"
-          release="${{ env.FOLDER }}/${version}.md"          
+          release="${{ env.FOLDER }}/${version}.md"
+          echo -en "# ${version}\n\n" > ${release}
           ls ${{ github.workspace }}/${{ env.FOLDER }}/*/*.tar.gz
           for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*/*.tar.gz`
           do      
           if [[ -f "${gz}" ]]; then
-            gz=${gz##*/}
-            echo "添加文件(${gz}:${release})"
+            gz=${gz##*/}            
             echo -en "* [${gz}](${{ github.server_url }}/${{ github.repository }}/${{ env.DOWNLOAD }}/${version}/${gz})\n" >> ${release}       
           fi
           done          
           cat ${release}
-          echo -en "# ${{ env.Title }}\n" > ${{ env.FOLDER }}.md
-          echo -en '----\n' >> ${{ env.FOLDER }}.md
+          echo -en "# ${{ env.Title }}\n\n" > ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do          
           if [[ -f "${md}" ]]; then
-            echo "添加文件(${md}:${{ env.FOLDER }}.md)"
-            echo -en "## ${version}\n" >> ${{ env.FOLDER }}.md
+            echo -en "#" >> ${{ env.FOLDER }}.md
             cat ${md} >> ${{ env.FOLDER }}.md
-            echo -en '\n' >> ${{ env.FOLDER }}.md
+            echo -en '\n\n' >> ${{ env.FOLDER }}.md
           fi
           done
           cat ${{ env.FOLDER }}.md          
