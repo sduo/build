@@ -171,7 +171,7 @@ jobs:
           do          
           if [[ -f "${md}" ]]; then
             echo "添加文件(${md}:${{ env.FOLDER }}.md)"
-            echo -en "## ${version}" >> ${{ env.FOLDER }}.md
+            echo -en "## ${version}\n" >> ${{ env.FOLDER }}.md
             cat ${md} >> ${{ env.FOLDER }}.md
             echo -en '\n' >> ${{ env.FOLDER }}.md
           fi
@@ -189,6 +189,6 @@ jobs:
             echo "${tag}:${sha}"
             git tag -f ${tag} ${sha}
             echo "${tag}:$(git rev-parse ${tag})"
-            git push --follow-tags
+            git push --tags
           fi
           
