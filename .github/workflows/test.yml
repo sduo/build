@@ -156,7 +156,7 @@ jobs:
           release="${{ env.FOLDER }}/${version}.md"
           echo -en "# ${version}\n" > ${release}
           echo -en '----\n' >> ${release}
-          for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
+          for gz in `ls -r ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
           do          
           if [[ -f "${gz}" ]]; then
             echo ${gz}
@@ -169,7 +169,7 @@ jobs:
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do          
           if [[ -f "${md}" ]]; then    
-            echo ${md}
+            echo -en '#' >> ${{ env.FOLDER }}.md
             cat ${md} >> ${{ env.FOLDER }}.md
             echo -en '\n' >> ${{ env.FOLDER }}.md
           fi
@@ -180,8 +180,8 @@ jobs:
           ls -flR ${{ github.workspace }}
           cd ${{ github.workspace }}/${{ github.event.repository.name }}          
           git add --all
-          if [ -n "$(git status --porcelain)" ]; then
-            git status --short
+          git status --short
+          if [ -n "$(git status --porcelain)" ]; then            
             git commit --allow-empty-messag -m "${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
             git push
           fi
