@@ -134,6 +134,7 @@ jobs:
     env:
       FOLDER: 'tailscale'
       Title: 'Tailscale'
+      DOWNLOAD: 'releases/download'
     steps:      
       - name: '检出仓库'
         uses: actions/checkout@v6
@@ -156,11 +157,16 @@ jobs:
           release="${{ env.FOLDER }}/${version}.md"
           echo -en "# ${version}\n" > ${release}
           echo -en '----\n' >> ${release}
-          for gz in `ls -r ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
-          do          
+          for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
+          do      
+          echo ${gz}
           if [[ -f "${gz}" ]]; then
-            echo ${gz}
-            echo -en "* [${gz}](${{ github.server_url }}/${{ github.repository }}/releases/download/${version}/${gz})\n" >> ${release}       
+            echo 1
+          else
+            echo 2
+          fi
+          if [[ -f "${gz}" ]]; then
+            echo -en "* [${gz}](${{ github.server_url }}/${{ github.repository }}/${{ env.DOWNLOAD }}/${version}/${gz})\n" >> ${release}       
           fi
           done          
           cat ${release}
