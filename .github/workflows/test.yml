@@ -194,7 +194,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-          gh release create "${tag}" --repo ${{ github.repository }} --title "${{ env.Title }} v${{ needs.Build.outputs.version }}" ${{ github.workspace }}/${{ env.FOLDER }}/**/*.tar.gz
+          gh release create "${tag}" ${{ github.workspace }}/${{ env.FOLDER }}/**/*.tar.gz --repo ${{ github.repository }} --title "${{ env.Title }} v${{ needs.Build.outputs.version }}" 
           
             
           
