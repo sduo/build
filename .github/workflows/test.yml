@@ -154,25 +154,25 @@ jobs:
           cd ${{ github.workspace }}/${{ github.event.repository.name }}
           mkdir --parents ${{ env.FOLDER }}
           version="v${{ needs.Build.outputs.version }}"
-          file="${{ env.FOLDER }}/${ version }.md"
-          echo "# ${ version }" >  ${ file }
-          echo '----' >> ${ file }
+          file="${{ env.FOLDER }}/${version}.md"
+          echo "# ${version}" >  ${file}
+          echo '----' >> ${file}
           for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
           do
-          if [[ -f "${ gz }" ]]; then            
-            echo "* [${ gz }](${{ github.server_url }}/${{ github.repository }}/releases/download/${ version }/${ gz })" >> ${ file }       
+          if [[ -f "${gz}" ]]; then            
+            echo "* [${ gz }](${{ github.server_url }}/${{ github.repository }}/releases/download/${version}/${gz})" >> ${file}       
           fi
           done          
           echo "# ${{ env.Title }}" > ${{ env.FOLDER }}.md
           echo '----' >> ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do
-          if [[ -f "${ md }" ]]; then            
+          if [[ -f "${md}" ]]; then            
             `cat ${{ env.FOLDER }}/${md}` >> ${{ env.FOLDER }}.md
             echo. >> ${{ env.FOLDER }}.md
           fi
           done
-          cat ${ file }
+          cat ${file}
           cat ${{ env.FOLDER }}.md
       - name: '提交发布信息'
         run: |
