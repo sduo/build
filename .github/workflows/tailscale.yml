@@ -99,7 +99,7 @@ jobs:
           if [[ "${TAG}" == "dev" ]]; then
             cd ${{ github.workspace }}/${{ env.FOLDER }}
             export TZ=UTC
-            version="$(cat ${{ env.VERSION }})-$(git log -1 --format="dev%cd-t%h" --abbrev=9 --date=format:%Y$m%d)"
+            version="$(cat ${{ env.VERSION }})-$(git log -1 --format="dev%cd-t%h" --abbrev=9 --date=format:%Y%m%d)"
             unset TZ
             folder="${version}_${{ matrix.os }}_${{ matrix.arch }}"
             mkdir --parents ${{ github.workspace }}/${{ env.DISTRIBUTION }}/${folder}/${{ matrix.cmd }}
