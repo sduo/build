@@ -161,6 +161,7 @@ jobs:
           for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*/*.tar.gz`
           do      
           if [[ -f "${gz}" ]]; then
+            gz=${gz##*/}
             echo "添加文件(${gz}:${release})"
             echo -en "* [${gz}](${{ github.server_url }}/${{ github.repository }}/${{ env.DOWNLOAD }}/${version}/${gz})\n" >> ${release}       
           fi
