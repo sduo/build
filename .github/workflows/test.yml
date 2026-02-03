@@ -158,15 +158,10 @@ jobs:
           echo -en "# ${version}\n" > ${release}
           echo -en '----\n' >> ${release}
           ls ${{ github.workspace }}/${{ env.FOLDER }}/*/*.tar.gz
-          for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
+          for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*/*.tar.gz`
           do      
-          echo ${gz}
           if [[ -f "${gz}" ]]; then
-            echo 1
-          else
-            echo 2
-          fi
-          if [[ -f "${gz}" ]]; then
+            echo "添加文件(${gz}:${release})"
             echo -en "* [${gz}](${{ github.server_url }}/${{ github.repository }}/${{ env.DOWNLOAD }}/${version}/${gz})\n" >> ${release}       
           fi
           done          
@@ -175,7 +170,8 @@ jobs:
           echo -en '----\n' >> ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do          
-          if [[ -f "${md}" ]]; then    
+          if [[ -f "${md}" ]]; then
+            echo "添加文件(${md}:${{ env.FOLDER }}.md)"
             echo -en '#' >> ${{ env.FOLDER }}.md
             cat ${md} >> ${{ env.FOLDER }}.md
             echo -en '\n' >> ${{ env.FOLDER }}.md
