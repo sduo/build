@@ -154,9 +154,7 @@ jobs:
           cd ${{ github.workspace }}/${{ github.event.repository.name }}
           mkdir --parents ${{ env.FOLDER }}
           version="v${{ needs.Build.outputs.version }}"
-          release="${{ env.FOLDER }}/${version}.md"
-          echo -en "# ${version}\n" > ${release}
-          echo -en '----\n' >> ${release}
+          release="${{ env.FOLDER }}/${version}.md"          
           ls ${{ github.workspace }}/${{ env.FOLDER }}/*/*.tar.gz
           for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*/*.tar.gz`
           do      
@@ -173,7 +171,7 @@ jobs:
           do          
           if [[ -f "${md}" ]]; then
             echo "添加文件(${md}:${{ env.FOLDER }}.md)"
-            echo -en '#' >> ${{ env.FOLDER }}.md
+            echo -en "## ${version}" >> ${{ env.FOLDER }}.md
             cat ${md} >> ${{ env.FOLDER }}.md
             echo -en '\n' >> ${{ env.FOLDER }}.md
           fi
@@ -181,11 +179,16 @@ jobs:
           cat ${{ env.FOLDER }}.md          
       - name: '提交发布信息'
         run: |
-          ls -flR ${{ github.workspace }}
           cd ${{ github.workspace }}/${{ github.event.repository.name }}          
           git add --all
           git status --short
-          if [ -n "$(git status --porcelain)" ]; then            
-            git commit --allow-empty-messag -m "${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-            git push
+          if [[ -n "$(git status --porcelain)" ]]; then            
+            tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
+            git commit -m "${tag}"            
+            sha=$(git log -1 --format="%H")
+            echo "${tag}:${sha}"
+            git tag -f ${tag} ${sha}
+            echo "${tag}:$(git rev-parse ${tag})"
+            git push --follow-tags
           fi
+          
