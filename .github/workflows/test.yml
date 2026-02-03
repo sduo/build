@@ -151,26 +151,28 @@ jobs:
           submodules: true      
       - name: '生成发布信息'
         run: |
+          ls -flr ${{ github.workspace }}
           cd ${{ github.workspace }}/${{ github.event.repository.name }}
           mkdir --parents ${{ env.FOLDER }}
           version="v${{ needs.Build.outputs.version }}"
-          file="${{ env.FOLDER }}/${version}.md"
-          echo "# ${version}" >  ${file}
-          echo '----' >> ${file}
+          release="${{ env.FOLDER }}/${version}.md"
+          echo -en "# ${version}\n" > ${release}
+          echo -en '----\n' >> ${release}
           for gz in `ls ${{ github.workspace }}/${{ env.FOLDER }}/*.tar.gz`
           do
           if [[ -f "${gz}" ]]; then            
-            echo "* [${ gz }](${{ github.server_url }}/${{ github.repository }}/releases/download/${version}/${gz})" >> ${file}       
+            echo -en "* [${ gz }](${{ github.server_url }}/${{ github.repository }}/releases/download/${version}/${gz})\n" >> ${release}       
           fi
           done          
-          cat ${file}
-          echo "# ${{ env.Title }}" > ${{ env.FOLDER }}.md
-          echo '----' >> ${{ env.FOLDER }}.md
+          cat ${release}
+          ls -flr ${{ github.workspace }}
+          echo -en "# ${{ env.Title }}\n" > ${{ env.FOLDER }}.md
+          echo -en '----\n' >> ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do
           if [[ -f "${md}" ]]; then            
             cat ${md} >> ${{ env.FOLDER }}.md
-            echo. >> ${{ env.FOLDER }}.md
+            echo -en '\n' >> ${{ env.FOLDER }}.md
           fi
           done
           cat ${{ env.FOLDER }}.md
