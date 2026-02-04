@@ -173,12 +173,12 @@ jobs:
             echo -en '\n\n' >> ${{ env.FOLDER }}.md
           fi
           done
-          cat ${{ env.FOLDER }}.md          
-      - name: '提交发布信息'
-        run: |
-          cd ${{ github.workspace }}/${{ github.event.repository.name }}          
+          cat ${{ env.FOLDER }}.md
           git add --all
           git status --short
+      - name: '提交发布信息'
+        run: |
+          cd ${{ github.workspace }}/${{ github.event.repository.name }} 
           if [[ -n "$(git status --porcelain)" ]]; then            
             tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
             git commit -m "${tag}"            
@@ -194,8 +194,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           RELEASE: ${{ inputs.release }}
         run: |
-          tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-          if [[ -n "$(gh api repos/${{ github.repository }}/releases --jq \"limit(1; .[] | select(.tag_name == \"${tag}\" )) | .tag_name \")" ]]; then
+          cd ${{ github.workspace }}/${{ github.event.repository.name }}
+          if [[ -n "$(git status --porcelain)" ]]; then
+            tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
             flag="--repo ${{ github.repository }}"
             flag="${flag} --title \"${{ env.Title }} v${{ needs.Build.outputs.version }}\""
             flag="${flag} --notes \"[${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})\""
@@ -204,3 +205,5 @@ jobs:
             fi
             gh release create "${tag}" ${{ github.workspace }}/${{ env.DISTRIBUTION }}/**/*.tar.gz ${flags}
           fi
+
+
