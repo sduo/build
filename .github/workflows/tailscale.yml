@@ -174,12 +174,12 @@ jobs:
           fi
           done
           cat ${{ env.FOLDER }}.md
-          git add --all
-          git status --short
+          git add --all          
       - name: '提交发布信息'
         run: |
           cd ${{ github.workspace }}/${{ github.event.repository.name }} 
-          if [[ -n "$(git status --porcelain)" ]]; then            
+          git status --short
+          if [[ -n "$(git status --porcelain)" ]]; then
             tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
             git commit -m "${tag}"            
             sha=$(git log -1 --format="%H")
@@ -194,16 +194,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           RELEASE: ${{ inputs.release }}
         run: |
-          cd ${{ github.workspace }}/${{ github.event.repository.name }}
-          if [[ -n "$(git status --porcelain)" ]]; then
-            tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-            flag="--repo ${{ github.repository }}"
-            flag="${flag} --title \"${{ env.Title }} v${{ needs.Build.outputs.version }}\""
-            flag="${flag} --notes \"[${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})\""
-            if [[ "${RELEASE}" == "dev" ]]; then
-              flags = "${flag} --prerelease"
-            fi
-            gh release create "${tag}" ${{ github.workspace }}/${{ env.DISTRIBUTION }}/**/*.tar.gz ${flags}
+          tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
+          flag="--repo ${{ github.repository }}"
+          flag="${flag} --title \"${{ env.Title }} v${{ needs.Build.outputs.version }}\""
+          flag="${flag} --notes \"[${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})\""
+          if [[ "${RELEASE}" == "dev" ]]; then
+            flags = "${flag} --prerelease"
           fi
+          gh release create "${tag}" ${{ github.workspace }}/${{ env.DISTRIBUTION }}/**/*.tar.gz ${flags}
 
 
