@@ -12,7 +12,7 @@ jobs:
   CheckCommit:
     runs-on: ubuntu-latest
     env:
-      REPO: 'tailscale/tailscale'      
+      TAILSCALE: 'tailscale/tailscale'      
       RELEASE: ${{ inputs.release }}
     outputs:
       sha: ${{steps.commit.outputs.sha}}
@@ -25,25 +25,23 @@ jobs:
         run: |          
           if [[ "${RELEASE}" == "latest" ]] || [[ "${RELEASE}" == "" ]]; then
             echo "获取最新发布版本"
-            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")
-          elif [[ "${RELEASE:0:1}" == "v" ]]; then
-            echo "获取指定发布版本(${RELEASE})"
-            tag=$(gh api repos/${{ env.REPO }}/releases --jq "limit(1; .[] | select(.tag_name == \"${RELEASE}\" )) | .tag_name ")            
+            tag=$(gh api repos/${{ env.TAILSCALE }}/releases --jq "limit(1; .[] | select(.draft == false and .prerelease == false)) | .tag_name ")          
           elif [[ "${RELEASE}" == "dev" ]]; then
             echo "使用最新提交信息"
             tag="dev"
           else
-            tag=""
+            echo "获取指定发布版本(${RELEASE})"
+            tag=$(gh api repos/${{ env.TAILSCALE }}/releases --jq "limit(1; .[] | select(.tag_name == \"${RELEASE}\" )) | .tag_name ")
           fi          
           if [[ "${tag}" == "" ]]; then
             echo "获取提交信息失败(${RELEASE})"
             exit 1
           elif [[ "${tag}" == "dev" ]]; then
             echo "获取最新提交信息"
-            sha=$(gh api repos/${{ env.REPO }}/commits --jq "limit(1; .[] | .sha)")
+            sha=$(gh api repos/${{ env.TAILSCALE }}/commits --jq "limit(1; .[] | .sha)")
           else
             echo "获取指定提交信息(${tag})"
-            sha=$(gh api repos/${{ env.REPO }}/tags --jq "limit(1; .[] | select(.name == \"${tag}\")) | .commit.sha ")
+            sha=$(gh api repos/${{ env.TAILSCALE }}/tags --jq "limit(1; .[] | select(.name == \"${tag}\")) | .commit.sha ")
           fi         
           echo "获取提交信息成功(${tag}:${sha})"
           echo "tag=${tag}" >> ${GITHUB_OUTPUT}
@@ -53,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: CheckCommit
     env:
-      REPO: 'tailscale/tailscale'
+      TAILSCALE: 'tailscale/tailscale'
       FOLDER: 'tailscale'
       BUILD_SRCIPT: 'build_dist.sh'
       DISTRIBUTION: 'artifacts'
@@ -81,7 +79,7 @@ jobs:
       - name: '检出指定提交'
         uses: actions/checkout@v6
         with:
-          repository: ${{ env.REPO }}
+          repository: ${{ env.TAILSCALE }}
           ref: ${{needs.CheckCommit.outputs.sha}}
           path: ${{ env.FOLDER }}
           submodules: true
@@ -132,9 +130,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: Build
     env:
-      FOLDER: 'tailscale'
+      DISTRIBUTION: 'artifacts'
       Title: 'Tailscale'
-      REPO: 'tailscale/tailscale'
+      FOLDER: 'tailscale'
+      TAILSCALE: 'tailscale/tailscale'
       DOWNLOAD: 'releases/download'
     steps:      
       - name: '检出仓库'
@@ -149,7 +148,7 @@ jobs:
       - name: '下载发布文件'
         uses: actions/download-artifact@v7
         with:
-          path: ${{ github.workspace }}/${{ env.FOLDER }}      
+          path: ${{ github.workspace }}/${{ env.DISTRIBUTION }}      
       - name: '生成发布信息'
         run: |          
           cd ${{ github.workspace }}/${{ github.event.repository.name }}
@@ -166,7 +165,7 @@ jobs:
           fi
           done          
           cat ${release}
-          echo -en "# [${{ env.Title }}](${{ github.server_url }}/${{ env.REPO }})\n\n" > ${{ env.FOLDER }}.md
+          echo -en "# [${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})\n\n" > ${{ env.FOLDER }}.md
           for md in `ls -r ${{ env.FOLDER }}/v*.md`
           do          
           if [[ -f "${md}" ]]; then
@@ -194,9 +193,13 @@ jobs:
       - name: '创建发布'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          RELEASE: ${{ inputs.release }}
         run: |
           tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-          gh release create "${tag}" ${{ github.workspace }}/${{ env.FOLDER }}/**/*.tar.gz --repo ${{ github.repository }} --title "${{ env.Title }} v${{ needs.Build.outputs.version }}" --notes "[${{ env.Title }}](${{ github.server_url }}/${{ env.REPO }})"
-          
-            
-          
+          flag="--repo ${{ github.repository }}"
+          flag="${flag} --title \"${{ env.Title }} v${{ needs.Build.outputs.version }}\""
+          flag="${flag} --notes \"[${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})\""
+          if [[ "${RELEASE}" == "dev" ]]; then
+            flags = "${flag} --prerelease"
+          fi
+          gh release create "${tag}" ${{ github.workspace }}/${{ env.DISTRIBUTION }}/**/*.tar.gz ${flags}
