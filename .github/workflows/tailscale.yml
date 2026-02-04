@@ -195,11 +195,11 @@ jobs:
           RELEASE: ${{ inputs.release }}
         run: |
           tag="${{ env.FOLDER }}-v${{ needs.Build.outputs.version }}"
-          flag="--repo ${{ github.repository }}"
-          flag="${flag} --title \"${{ env.Title }} v${{ needs.Build.outputs.version }}\""
-          flag="${flag} --notes \"[${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})\""
+          flags="--repo ${{ github.repository }}"
+          flags="${flags} --title \"${{ env.Title }} v${{ needs.Build.outputs.version }}\""
+          flags="${flags} --notes \"[${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})\""
           if [[ "${RELEASE}" == "dev" ]]; then
-            flags = "${flag} --prerelease"
+            flags = "${flags} --prerelease"
           fi
           gh release create "${tag}" ${{ github.workspace }}/${{ env.DISTRIBUTION }}/**/*.tar.gz ${flags}
 
