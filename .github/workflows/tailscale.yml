@@ -201,7 +201,7 @@ jobs:
             --notes "[${{ env.Title }}](${{ github.server_url }}/${{ env.TAILSCALE }})"
           )
           if [[ "${RELEASE}" == "dev" ]]; then
-            flags+= (--prerelease)
+            flags+=(--prerelease)
           fi
           echo "flags:${flags[@]}"
           gh release create "${tag}" ${{ github.workspace }}/${{ env.DISTRIBUTION }}/**/*.tar.gz "${flags[@]}"
