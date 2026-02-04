@@ -201,6 +201,7 @@ jobs:
           if [[ "${RELEASE}" == "dev" ]]; then
             flags = "${flags} --prerelease"
           fi
+          echo ${flags}
           gh release create "${tag}" ${{ github.workspace }}/${{ env.DISTRIBUTION }}/**/*.tar.gz ${flags}
 
 
